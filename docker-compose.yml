@@ -2,17 +2,19 @@ version: '3'
 services:
 
   engine:
+    # Image from php:7.4-fpm
     build: ./build/engine/
     restart: always
     volumes:            
       - ./config/custom.php.ini:/usr/local/etc/php/conf.d/custom.ini
       - ./www:/share/nginx/html
+      # -> PHP doit aussi accéder au volume local pour interpréter les fichiers PHP sur le serveur
     ports:
       - "9000:9000"
     environment:
       PHP_FPM_USER: www-data
       PHP_FPM_GROUP: www-data
-      
+
   server:
     image: nginx:latest
     restart: always
@@ -28,6 +30,7 @@ services:
   
   db:
     image: mariadb:10.3
+    restart: always
     volumes:
       - ./mariadb:/var/lib/mysql
     environment:
@@ -35,6 +38,7 @@ services:
       MYSQL_DATABASE: database
 
   composer:
+    restart: 'no'
     image: composer
     command: install
     volumes:
@@ -42,5 +46,6 @@ services:
 
   adminer:
     image: adminer
+    restart: always
     ports:
       - 8080:8080
